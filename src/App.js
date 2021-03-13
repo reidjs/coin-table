@@ -4,8 +4,21 @@ import Table from './table';
 import './App.css';
 
 const snakeCaseToTitleCase = str => {
-  // TODO (nice headers)
-  return str
+  let titleCase = ''
+  let flag = false
+  for(let i = 0; i < str.length; i++) {
+    let char = str[i]
+    if (i == 0 || flag) {
+      titleCase += char.toUpperCase()
+      flag = false
+    } else if (char == '_') {
+      titleCase += ' '
+      flag = true
+    } else {
+      titleCase += char
+    }
+  }
+  return titleCase
 }
 
 const formatTableColumns = (firstDatum) => {
@@ -17,6 +30,7 @@ const formatTableColumns = (firstDatum) => {
     const t = {}
     t.Header = snakeCaseToTitleCase(key)
     t.accessor = key
+    t.defaultCanSort = true
     formattedColumns.push(t)
     if (key == 'image') {
       t.Cell = props => {
@@ -38,6 +52,7 @@ const formatTableData = tableData => {
   for (let i = 0; i < tableData.length; i++) {
     const row = tableData[i]
     const t = Object.assign({}, row)
+
     // ROI is occasionally an object, breaks render.
     delete t.roi
 
@@ -59,48 +74,42 @@ function App() {
   const [tableData, setTableData] = useState([])
   const [tableColumns, setTableColumns] = useState([])
   const [intervalId, setIntervalId] = useState(undefined)
-  const [hiddenColumns, setHiddenColumns] = useState(['id'])
 
   const getTableData = async () => {
     const res = await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=false')
     const json = await res.json()
     const formattedRows = formatTableData(json)
-    const firstRow = formattedRows[0]
-    const formattedColumns = formatTableColumns(firstRow)
-
-    setTableData(formattedRows)
-    setTableColumns(formattedColumns)
+    
+    return formattedRows
   }
 
-  const handleCheckboxToggle = () => {
-    const t = hiddenColumns.slice(0)
-    const idx = t.indexOf('id')
-    if (idx == -1) {
-      t.push('id')
-    } else {
-      t.splice(idx, 1)
-    }
-    setHiddenColumns(t)
-    getTableData()
-  }
   // TODO: loading state
   useEffect(async () => {
     // TODO: change to 1000ms/request
     if (typeof intervalId == 'undefined') {
-      getTableData()
+      const data = await getTableData()
+      setTableData(data)
       setIntervalId(setInterval(getTableData, 5000))
+      if (tableColumns.length == 0) {
+        const firstRow = data[0]
+        const formattedColumns = formatTableColumns(firstRow)
+        setTableColumns(formattedColumns)
+      }
     }
   }, [tableData, tableColumns, intervalId])
   return (
     <main>
       <h1>Coin Rankings</h1>
-      <details open>
-        <summary>Toggle Columns</summary>
-        <input type="checkbox" checked={hiddenColumns.indexOf('id') == -1} onChange={handleCheckboxToggle} />ID
-      </details>
-      <figure>
-        <Table tableData={tableData} tableColumns={tableColumns} initialState={{ hiddenColumns }} />
-      </figure>
+      <div className="table-container">
+        <figure>
+          <Table tableData={tableData} tableColumns={tableColumns} />
+        </figure>
+      </div>
+      <footer>
+        <ul>
+          {/* TODO */}
+        </ul>
+      </footer>
     </main>
   );
 }
