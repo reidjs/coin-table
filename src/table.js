@@ -1,38 +1,15 @@
-import React, { useEffect } from 'react'
+import React, { useMemo } from 'react'
 import { useTable } from 'react-table'
 
-const Table = tableRows => {
-  // console.log('tableRows', tableRows)
-  const data = React.useMemo(
-    () => [
-      {
-        col1: 'Hello',
-        col2: 'World',
-      },
-      {
-        col1: 'react-table',
-        col2: 'rocks',
-      },
-      {
-        col1: 'whatever',
-        col2: 'you want',
-      },
-    ],
-    []
+const Table = ({ tableData, tableColumns }) => {
+  const data = useMemo(
+    () => tableData,
+    [tableData]
   )
 
-  const columns = React.useMemo(
-    () => [
-      {
-        Header: 'Column 1',
-        accessor: 'col1', // accessor is the "key" in the data
-      },
-      {
-        Header: 'Column 2',
-        accessor: 'col2',
-      },
-    ],
-    []
+  const columns = useMemo(
+    () => tableColumns,
+    [tableColumns]
   )
 
   const {
@@ -42,25 +19,26 @@ const Table = tableRows => {
     rows,
     prepareRow,
   } = useTable({ columns, data })
-
   return (
     <table {...getTableProps()} style={{ border: 'solid 1px blue' }}>
       <thead>
         {headerGroups.map(headerGroup => (
           <tr {...headerGroup.getHeaderGroupProps()}>
-            {headerGroup.headers.map(column => (
-              <th
-                {...column.getHeaderProps()}
-                style={{
-                  borderBottom: 'solid 3px red',
-                  background: 'aliceblue',
-                  color: 'black',
-                  fontWeight: 'bold',
-                }}
-              >
-                {column.render('Header')}
-              </th>
-            ))}
+            {headerGroup.headers.map(column => {
+              return (
+                <th
+                  {...column.getHeaderProps()}
+                  style={{
+                    borderBottom: 'solid 3px red',
+                    background: 'aliceblue',
+                    color: 'black',
+                    fontWeight: 'bold',
+                  }}
+                >
+                  {column.render('Header')}
+                </th>
+              )
+            })}
           </tr>
         ))}
       </thead>
