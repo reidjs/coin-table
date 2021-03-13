@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react'
 import { useTable } from 'react-table'
 
-const Table = ({ tableData, tableColumns }) => {
+const Table = ({ tableData, tableColumns, initialState }) => {
   const data = useMemo(
     () => tableData,
     [tableData]
@@ -18,7 +18,7 @@ const Table = ({ tableData, tableColumns }) => {
     headerGroups,
     rows,
     prepareRow,
-  } = useTable({ columns, data })
+  } = useTable({ columns, data, initialState })
   return (
     <table {...getTableProps()} style={{ border: 'solid 1px blue' }}>
       <thead>
