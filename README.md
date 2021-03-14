@@ -1,3 +1,12 @@
+# About
+- [x] Sort 
+- [x] Hide/Show Columns
+- [x] Computed Columns (Days since ATH, %Market Share)
+- [x] Mobile Responsive
+- [x] Realtime Updates (1 Request/Second)
+
+![coin-table-demo](coin-table-demo.png)
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).

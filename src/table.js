@@ -1,8 +1,9 @@
 import React, { useMemo } from 'react'
-import { useTable, useSortBy } from 'react-table'
+import { useTable, useSortBy, useColumnOrder } from 'react-table'
+import { snakeCaseToTitleCase } from './utils'
 
 const Table = ({ tableData, tableColumns }) => {
-  // TODO: memo on App.js component
+
   const data = useMemo(
     () => tableData,
     [tableData]
@@ -13,24 +14,30 @@ const Table = ({ tableData, tableColumns }) => {
     [tableColumns]
   )
 
+  const initialState = {
+    columnOrder: ['name', 'image', 'days_since_ath', 'percentage_of_market_share']
+  }
+
   const {
     getTableProps,
     getTableBodyProps,
     headerGroups,
     rows,
     toggleHideColumn,
+    state,
     prepareRow,
-  } = useTable({ columns, data }, useSortBy)
+  } = useTable({ columns, data, initialState }, useSortBy, useColumnOrder)
+
   return (
     <table {...getTableProps()} style={{ border: 'solid 1px blue' }}>
-      <thead>
-        <tr>
-          <details>
-            <summary>Hidden Columns</summary>
-            <ul>
-              <li>test</li>
-            </ul>
-          </details>
+      <thead className={state.hiddenColumns.length > 0 ? '' : 'hidden'}>
+        <tr className="hidden-column-row">
+          <th className="show-text"><em>Show:</em></th>
+          {state.hiddenColumns.map((col) => {
+            return (
+              <th className="table-header-container" onClick={() => toggleHideColumn(col)} key={col}><input type="checkbox"></input>{snakeCaseToTitleCase(col)}</th>
+            )
+          })}
         </tr>
       </thead>
       <thead>
@@ -45,11 +52,7 @@ const Table = ({ tableData, tableColumns }) => {
                   {/* Hide Column */}
                   <span className="hide-column" onClick={(e) => {
                     e.stopPropagation()
-                    // console.log('column', column)
                     toggleHideColumn(column.id)
-                    // column.show = false
-                    console.log('column', column)
-
                   }}>
                     &times;
                   </span>
@@ -79,11 +82,6 @@ const Table = ({ tableData, tableColumns }) => {
                 return (
                   <td
                     {...cell.getCellProps()}
-                    style={{
-                      padding: '10px',
-                      border: 'solid 1px gray',
-                      background: 'papayawhip',
-                    }}
                   >
                     {cell.render('Cell')}
                   </td>
