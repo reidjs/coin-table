@@ -1,8 +1,10 @@
-import React, { useMemo } from 'react'
+import React, { useMemo, useEffect, useState } from 'react'
 import { useTable, useSortBy, useColumnOrder } from 'react-table'
 import { snakeCaseToTitleCase } from './utils'
 
 const Table = ({ tableData, tableColumns }) => {
+  const [hiddenColumns, setHiddenColumns] = useState([])
+  const [sortBy, setSortBy] = useState([])
 
   const data = useMemo(
     () => tableData,
@@ -15,7 +17,9 @@ const Table = ({ tableData, tableColumns }) => {
   )
 
   const initialState = {
-    columnOrder: ['name', 'image', 'days_since_ath', 'percentage_of_market_share']
+    columnOrder: ['name', 'image', 'days_since_ath', 'percentage_of_market_share'],
+    hiddenColumns,
+    sortBy
   }
 
   const {
@@ -28,6 +32,11 @@ const Table = ({ tableData, tableColumns }) => {
     prepareRow,
   } = useTable({ columns, data, initialState }, useSortBy, useColumnOrder)
 
+  // To save sort and hidden columns on new data
+  useEffect(() => {
+    setHiddenColumns(state.hiddenColumns)
+    setSortBy(state.sortBy)
+  }, [state.hiddenColumns, state.sortBy])
   return (
     <table {...getTableProps()} style={{ border: 'solid 1px blue' }}>
       <thead className={state.hiddenColumns.length > 0 ? '' : 'hidden'}>
