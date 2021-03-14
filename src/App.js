@@ -14,7 +14,7 @@ function App() {
     const res = await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=false')
     const json = await res.json()
     const formattedRows = formatTableData(json)
-    
+
     return formattedRows
   }
 
@@ -23,7 +23,11 @@ function App() {
     if (typeof intervalId == 'undefined') {
       const data = await getTableData()
       setTableData(data)
-      setIntervalId(setInterval(getTableData, 1000))
+      setIntervalId(setInterval(
+        async () => {
+          const data = await getTableData()
+          setTableData(data)
+        }, 1000))
       if (tableColumns.length == 0) {
         const firstRow = data[0]
         const formattedColumns = formatTableColumns(firstRow)
